@@ -43,39 +43,80 @@ function initScrollAnimations() {
     });
 }
 
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast-notification');
+    const toastMessage = document.getElementById('toast-message');
+    const toastIcon = document.getElementById('toast-icon');
+
+    if (!toast) return;
+
+    // Reset variable classes
+    toast.className = 'fixed bottom-10 right-4 md:right-10 z-[120] transform transition-all duration-500 translate-y-20 opacity-0 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl border pointer-events-none';
+
+    if (isError) {
+        toast.classList.add('bg-red-500/20', 'border-red-500/30', 'text-red-200');
+        toastIcon.textContent = 'error';
+        toastIcon.className = 'material-symbols-outlined text-[20px] text-red-400';
+    } else {
+        toast.classList.add('bg-primary/20', 'border-primary/30', 'text-slate-200');
+        toastIcon.textContent = 'check_circle';
+        toastIcon.className = 'material-symbols-outlined text-[20px] text-primary';
+    }
+
+    toastMessage.textContent = message;
+
+    // Animate in
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        toast.classList.add('translate-y-0', 'opacity-100');
+    });
+
+    // Animate out after delay
+    setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+    }, 4000);
+}
+
 function initFormHandling() {
     const form = document.querySelector('form');
     if (!form) return;
 
-    const submitBtn = form.querySelector('button[type="button"]');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
-    submitBtn.addEventListener('click', () => {
-        const inputs = form.querySelectorAll('input, textarea');
-        let isValid = true;
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-        inputs.forEach(input => {
-            if (!input.value.trim()) {
-                isValid = false;
-                input.classList.add('border-red-500');
-            } else {
-                input.classList.remove('border-red-500');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-70');
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: "POST",
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
             }
-        });
-
-        if (isValid) {
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'Connection Initiated...';
-            submitBtn.disabled = true;
-            submitBtn.classList.add('opacity-70');
-
-            setTimeout(() => {
-                alert('Thank you! Your vision brief has been received. Our concierge will contact you shortly.');
+        })
+        .then(response => {
+            if (response.ok) {
+                showToast('Vision brief received. We will contact you shortly.');
                 form.reset();
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-                submitBtn.classList.remove('opacity-70');
-            }, 2000);
-        }
+            } else {
+                showToast('Problem submitting form. Please try again.', true);
+            }
+        })
+        .catch(error => {
+            showToast('Error sending message. Please try again later.', true);
+        })
+        .finally(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-70');
+        });
     });
 }
 
@@ -88,26 +129,32 @@ function initProjectModal() {
     if (!modal || !projectCards.length) return;
 
     const projectsData = {
-        'nexus': {
-            title: 'Nexus Finance Dashboard',
-            category: 'Fintech Elite',
-            description: 'A sophisticated liquidity portal for institutional investors. This project involved building a high-performance dashboard with real-time data visualization, deep liquidity aggregation, and institutional-grade security protocols.',
+        'colombo': {
+            title: 'Colombo Cosmetics OMS',
+            category: 'Commerce Ops',
+            description: 'Mobile-first progressive web app for Colombo Cosmetics to manage orders, shipping, receipts, and business reporting with a polished luxury UI.',
             images: [
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBrMl8oMqxOLH-T5JE-SUdtS1b9Ha-bmBcOsDjcljwROJAgl4IwtXIpUd40DsG3OgAJTdQBWSsj-qV5fNwY_TA3HPCRrYOLeykDUBnFGdkRGnZw9zYdD9P07instNSh8Eg89wOSz_ldPC3BdTKuNKPKb22sHUZ5e3eViX8DFZBlroebgI4BQ30Nqc98rCYZGumnuAkB2EAZZ51Y0_kD_HbTYuMowDd3nB4js26Ut8q-OIan21lOkYHyyWCgnoYkzYaSVjoLs3zLW3Tr',
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuAyNAwQHjMWx1y_kp0dRR6a3__bHKVqVoh5ivopPunWAEk-XazlaurdW_R5nwIxL4BY1Kxh1jht3yYXOHcbrZk5CspUhJ8uakwx7XBqXwh0npsVfi9NQRjjV1rh6PNLTPNhXqw9oQPW7GegpvRaQ6aPwGIXnz-25gbg6PAvapl7GHyqnu15Y3iPSQJ6Nv3bWzeg1UduTw3d2dqc76wR50Z2e-Q0o9STPB27mW5tanhwRzF8CS7mVpMri7oUnrs4hUdK82jPiA9_6EC',
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBPRMjsQzwnWettjN2_oTSbK0TILAc62LZqVUtkwYsHw0vT_WyJxKXZZSKac9C0oEghp86dtAovvUkNGVAseNZLPPUjbxy7KAPKJq1jHJ-ptK6LMpFTI4Me7cMVgaqiBeFehTDCPIhdEOy4jim_aR-TvgdcowEZpXds3CMojvsevy3rxk9RBJZkMlpEVHI6c2IUxbKwMrZyQ8d4rBLmiOg23wRGnIz6EgM3kGLzgnKRW7gZb5VWu5TIUmnXnyPfDqWcTErZJ_fBmoqv'
+                '/ColomboCosmetics/cover.png',
+                '/ColomboCosmetics/dashboard.png',
+                '/ColomboCosmetics/allorders.png',
+                '/ColomboCosmetics/order.png',
+                '/ColomboCosmetics/reports.png'
             ],
-            tech: ['React', 'D3.js', 'Node.js', 'WebSockets', 'AWS']
+            tech: ['React', 'PWA', 'Tailwind CSS', 'Node.js', 'Analytics']
         },
-        'luxe': {
-            title: 'Luxe Fashion',
+        
+        'colour house': {
+            title: 'Colour House',
             category: 'E-Commerce',
-            description: 'A premium e-commerce experience for a high-end fashion brand. Focus on liquid animations, high-resolution media handling, and a seamless checkout experience that mirrors the luxury of the physical boutiques.',
+            description: 'A vibrant e-commerce platform built for Colour House, featuring a modern shopping experience, product catalog, and comprehensive admin dashboard.',
             images: [
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuAyNAwQHjMWx1y_kp0dRR6a3__bHKVqVoh5ivopPunWAEk-XazlaurdW_R5nwIxL4BY1Kxh1jht3yYXOHcbrZk5CspUhJ8uakwx7XBqXwh0npsVfi9NQRjjV1rh6PNLTPNhXqw9oQPW7GegpvRaQ6aPwGIXnz-25gbg6PAvapl7GHyqnu15Y3iPSQJ6Nv3bWzeg1UduTw3d2dqc76wR50Z2e-Q0o9STPB27mW5tanhwRzF8CS7mVpMri7oUnrs4hUdK82jPiA9_6EC',
-                'https://lh3.googleusercontent.com/aida-public/AB6AXuBrMl8oMqxOLH-T5JE-SUdtS1b9Ha-bmBcOsDjcljwROJAgl4IwtXIpUd40DsG3OgAJTdQBWSsj-qV5fNwY_TA3HPCRrYOLeykDUBnFGdkRGnZw9zYdD9P07instNSh8Eg89wOSz_ldPC3BdTKuNKPKb22sHUZ5e3eViX8DFZBlroebgI4BQ30Nqc98rCYZGumnuAkB2EAZZ51Y0_kD_HbTYuMowDd3nB4js26Ut8q-OIan21lOkYHyyWCgnoYkzYaSVjoLs3zLW3Tr'
+                '/colourhouse/landing.png',
+                '/colourhouse/products.png',
+                '/colourhouse/latest.png',
+                '/colourhouse/contact.png',
+                '/colourhouse/admindashboard.png'
             ],
-            tech: ['Next.js', 'Shopify Plus', 'GSAP', 'Tailwind CSS']
+            tech: ['React', 'Node.js', 'Tailwind CSS', 'PostgreSQL']
         },
         'medicore': {
             title: 'MediCore Analytics',
@@ -133,7 +180,7 @@ function initProjectModal() {
             <div class="slider-track" id="modal-slider-track">
               ${data.images.map(img => `
                 <div class="slide">
-                  <img src="${img}" alt="${data.title}">
+                  <img src="${img}" alt="${data.title}" class="cursor-pointer hover:opacity-90 transition-opacity">
                 </div>
               `).join('')}
             </div>
@@ -170,6 +217,8 @@ function initProjectModal() {
             if (data.images.length > 1) {
                 setupSliderEvents(modal);
             }
+            
+            setupImageExpansionEvents(modal);
         });
     });
 
@@ -213,6 +262,51 @@ function setupSliderEvents(modal) {
             const index = parseInt(dot.getAttribute('data-index'));
             updateSlider(index);
         });
+    });
+}
+
+function setupImageExpansionEvents(modal) {
+    const images = modal.querySelectorAll('.slide img');
+    const expansionModal = document.getElementById('image-expansion-modal');
+    const expandedImage = document.getElementById('expanded-image');
+    const closeExpansionBtn = expansionModal.querySelector('.close-expansion');
+
+    if (!expansionModal || !expandedImage) return;
+
+    images.forEach(img => {
+        img.addEventListener('click', () => {
+            expandedImage.src = img.src;
+            expandedImage.alt = img.alt;
+            
+            expansionModal.classList.remove('hidden');
+            // Small delay to allow display flex to apply before opacity transition
+            setTimeout(() => {
+                expansionModal.classList.remove('opacity-0');
+                expandedImage.classList.remove('scale-95');
+                expandedImage.classList.add('scale-100');
+            }, 10);
+        });
+    });
+
+    const closeExpansion = () => {
+        expansionModal.classList.add('opacity-0');
+        expandedImage.classList.remove('scale-100');
+        expandedImage.classList.add('scale-95');
+        
+        // Wait for transition before hiding
+        setTimeout(() => {
+            expansionModal.classList.add('hidden');
+            expandedImage.src = ''; // Clear source so old image doesn't flash next time
+        }, 300);
+    };
+
+    closeExpansionBtn.addEventListener('click', closeExpansion);
+    
+    // Close when clicking the backdrop, but not the image itself
+    expansionModal.addEventListener('click', (e) => {
+        if (e.target === expansionModal) {
+            closeExpansion();
+        }
     });
 }
 

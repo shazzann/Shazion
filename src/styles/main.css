@@ -20,6 +20,13 @@ body {
   /* slate-200 */
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 ::selection {
@@ -168,12 +175,16 @@ body {
 .slide {
   min-width: 100%;
   aspect-ratio: 16/10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #0a0520;
 }
 
 .slide img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .slider-nav {
