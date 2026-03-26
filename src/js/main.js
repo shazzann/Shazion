@@ -133,6 +133,7 @@ function initProjectModal() {
             title: 'Colombo Cosmetics OMS',
             category: 'Commerce Ops',
             description: 'Mobile-first progressive web app for Colombo Cosmetics to manage orders, shipping, receipts, and business reporting with a polished luxury UI.',
+            link: 'https://shazzann.github.io/CC-portfolio/',
             images: [
                 '/ColomboCosmetics/cover.png',
                 '/ColomboCosmetics/dashboard.png',
@@ -146,6 +147,7 @@ function initProjectModal() {
         'colour house': {
             title: 'Colour House',
             category: 'E-Commerce',
+            link: 'https://colourhouse.lk/',
             description: 'A vibrant e-commerce platform built for Colour House, featuring a modern shopping experience, product catalog, and comprehensive admin dashboard.',
             images: [
                 '/colourhouse/landing.png',
@@ -204,7 +206,7 @@ function initProjectModal() {
                 ${data.tech.map(t => `<span class="px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider">${t}</span>`).join('')}
               </div>
             </div>
-            <a href="#" class="glass-button w-full sm:w-fit px-10 py-4 rounded-full text-xs font-bold text-white flex items-center justify-center gap-3 uppercase tracking-widest">
+                        <a href="${data.link || '#'}" target="_blank" rel="noopener noreferrer" class="glass-button w-full sm:w-fit px-10 py-4 rounded-full text-xs font-bold text-white flex items-center justify-center gap-3 uppercase tracking-widest">
               Live Preview <span class="material-symbols-outlined text-[16px]">north_east</span>
             </a>
           </div>
